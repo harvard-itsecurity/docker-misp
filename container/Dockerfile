@@ -16,7 +16,7 @@ VOLUME /var/lib/mysql
 #VOLUME /etc/ssl/private
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev
+RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools
 
     #echo "test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld" ; \
 RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng/syslog-ng.conf ; \
