@@ -10,13 +10,14 @@ ARG MISP_EMAIL=admin@localhost
 
 # Dir you need to override to keep data on reboot/new container:
 VOLUME /var/lib/mysql
+#VOLUME /var/www/MISP/Config
 
 # Dir you might want to override in order to have custom ssl certs
 # Need: "misp.key" and "misp.cert"
 #VOLUME /etc/ssl/private
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools
+RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools rng-tools
 
     #echo "test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld" ; \
 RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng/syslog-ng.conf ; \
@@ -99,16 +100,17 @@ RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; 
     sudo -u www-data cp -a /var/www/MISP/app/Config/config.default.php /var/www/MISP/app/Config/config.php
 
 RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
-    sed -i -e "s/db password/$MYSQL_MISP_PASSWORD/g" /var/www/MISP/app/Config/database.php ; \
+    sed -i -e "s/db password/${MYSQL_MISP_PASSWORD}/g" /var/www/MISP/app/Config/database.php ; \
     sed -i -E "s/'salt'(\s+)=>\s''/'salt' => '`openssl rand -base64 32 | tr \'/\' \'0\'`'/" /var/www/MISP/app/Config/config.php ; \
-    sed -i -E "s/'baseurl'(\s+)=>\s''/'baseurl' => 'https:\/\/$MISP_FQDN'/" /var/www/MISP/app/Config/config.php ; \
-    sed -i -e "s/email@address.com/$MISP_EMAIL/" /var/www/MISP/app/Config/config.php ; \
+    sed -i -E "s/'baseurl'(\s+)=>\s''/'baseurl' => 'https:\/\/${MISP_FQDN}'/" /var/www/MISP/app/Config/config.php ; \
+    sed -i -e "s/email@address.com/${MISP_EMAIL}/" /var/www/MISP/app/Config/config.php ; \
     sudo chown -R www-data:www-data /var/www/MISP/app/Config ; \
     sudo chmod -R 750 /var/www/MISP/app/Config ; \
     sudo pip install pyzmq ; \
     sudo pip install redis ; \
     echo "#!/bin/bash" > /init-db ; \
     echo "if [ ! -f /var/lib/mysql/.db_initialized ]; then" >> /init-db ; \
+    echo "sudo chown -R mysql:mysql /var/lib/mysql" >> /init-db ; \
     echo "sudo -u mysql -H /usr/bin/mysql_install_db --user=mysql" >> /init-db ; \
     echo "chown -R mysql:mysql /var/lib/mysql" >> /init-db ; \
     echo "cd '/usr' ; /usr/bin/mysqld_safe --datadir='/var/lib/mysql' &" >> /init-db ; \
