@@ -17,7 +17,7 @@ VOLUME /var/lib/mysql
 #VOLUME /etc/ssl/private
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools rng-tools
+RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools rng-tools python3-dev python3-pip libpq5 libjpeg-dev
 
     #echo "test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld" ; \
 RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng/syslog-ng.conf ; \
@@ -53,7 +53,7 @@ RUN sudo -u www-data -H git submodule init ; \
     sudo -u www-data -H git submodule update
 
 WORKDIR /usr/local/src
-RUN sudo -u www-data -H git clone https://github.com/MISP/misp-modules.git
+RUN sudo -H git clone https://github.com/MISP/misp-modules.git
 
 WORKDIR /usr/local/src/misp-modules
 RUN sudo pip3 install --upgrade pip ; \
@@ -166,6 +166,18 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sudo /etc/init.d/rng-tools stop ; \
     sudo apt-get remove --purge -y rng-tools
 
+WORKDIR /etc/logrotate.d
+RUN echo "/var/www/MISP/app/tmp/logs/resque-*-error.log {" > misp ; \
+    echo "      rotate 30" >> misp ; \
+    echo "      dateext" >> misp ; \
+    echo "      missingok" >> misp ; \
+    echo "      notifempty" >> misp ; \
+    echo "      compress" >> misp ; \
+    echo "      weekly" >> misp ; \
+    echo "      copytruncate" >> misp ; \
+    echo "}" >> misp
+    
+    
 WORKDIR /var/www/MISP
 COPY supervisord.conf /etc/supervisor/conf.d/
 
