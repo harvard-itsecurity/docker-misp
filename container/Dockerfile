@@ -52,6 +52,14 @@ WORKDIR /var/www/MISP
 RUN sudo -u www-data -H git submodule init ; \
     sudo -u www-data -H git submodule update
 
+WORKDIR /usr/local/src
+RUN sudo -u www-data -H git clone https://github.com/MISP/misp-modules.git
+
+WORKDIR /usr/local/src/misp-modules
+RUN sudo pip3 install --upgrade pip ; \
+    sudo pip3 install -I -r REQUIREMENTS ;  \
+    sudo pip3 install -I .
+
 WORKDIR /var/www/MISP/app
 RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; \
     sudo -u www-data -H wget https://getcomposer.org/download/1.2.1/composer.phar -O composer.phar ; \
@@ -106,6 +114,7 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sed -i -e "s/email@address.com/${MISP_EMAIL}/" /var/www/MISP/app/Config/config.php ; \
     sudo chown -R www-data:www-data /var/www/MISP/app/Config ; \
     sudo chmod -R 750 /var/www/MISP/app/Config ; \
+    sudo pip install --upgrade pip ; \
     sudo pip install pyzmq ; \
     sudo pip install redis ; \
     echo "#!/bin/bash" > /init-db ; \
@@ -145,12 +154,20 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     echo "Name-Email: $MISP_EMAIL" >> /tmp/config_gpg ; \
     echo "Expire-Date: 0" >> /tmp/config_gpg ; \
     chmod 700 /tmp/config_gpg ; \
+    sudo rm -f /dev/random ; \
+    sudo mknod -m 0666 /dev/random c 1 9 ; \
+    sudo echo RNGDOPTIONS="--random-device /dev/urandom --rng-device /dev/urandom" | sudo tee /etc/default/rng-tools ; \
+    sudo echo HRNGDEVICE=/dev/urandom | sudo tee /etc/default/rng-tools ; \
+    sudo /etc/init.d/rng-tools restart ; \
+    sudo rngd -f -r /dev/urandom ; \
     chown www-data /tmp/config_gpg ; \
     sudo -u www-data sh -c "gpg --batch --homedir /var/www/MISP/.gnupg --gen-key /tmp/config_gpg" ; \
-    sudo -u www-data sh -c "gpg --homedir /var/www/MISP/.gnupg --export --armor $MISP_EMAIL > /var/www/MISP/app/webroot/gpg.asc"
+    sudo -u www-data sh -c "gpg --homedir /var/www/MISP/.gnupg --export --armor $MISP_EMAIL > /var/www/MISP/app/webroot/gpg.asc" ; \
+    sudo /etc/init.d/rng-tools stop ; \
+    sudo apt-get remove --purge -y rng-tools
 
-COPY supervisord.conf /etc/supervisor/conf.d/
 WORKDIR /var/www/MISP
+COPY supervisord.conf /etc/supervisor/conf.d/
 
 #>&2 echo "The default user = "admin@admin.test" | The default password = admin" ; \
 # To change it:

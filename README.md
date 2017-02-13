@@ -22,6 +22,10 @@ auto changing the salt hash, auto initializing the database, auto generating GPG
 keys, auto generating working + secure configs, and adding custom
 passwords/domain names/email addresses/ssl certificates.
 
+The misp-modules extensions functionality has been included and can be
+accessed from http://[dockerhostip]:6666/modules.
+(thanks to @radder5)
+
 # How to run it in 3 steps:
 
 ## 1. Initialize Database
@@ -83,12 +87,17 @@ And in your ```/certs``` dir, create private/public certs with file names:
 
 # Security note in regards to key generation:
 We have added "rng-tools" in order to help with entropy generation,
-since users have mentioned that during the pgp generation, some systems
-have a hard time creating enough "randomness". This in turn uses a pseudo-random
-generator, which is not 100% secure. If this is a concern for a
-production environment, you can either 1.) take out the "rng-tools"
-part from the Dockerfile and re-build the container, or 2.) replace the keys with
-your own! For most users, this should not ever be an issue.
+since users have mentioned that during the pgp generation, some
+systems have a hard time creating enough "randomness". This in turn
+uses a pseudo-random generator, which is not 100% secure. If this is a
+concern for a production environment, you can either 1.) take out the
+"rng-tools" part from the Dockerfile and re-build the container, or
+2.) replace the keys with your own! For most users, this should not
+ever be an issue. The "rng-tools" is removed as part of the build
+process after it has been used.
+
+# Contributions:
+@radder5 - RNG Tools and MISP Modules
 
 # Help/Questions/Comments:
 For help or more info, feel free to contact Ventz Petkov: ventz_petkov@harvard.edu
