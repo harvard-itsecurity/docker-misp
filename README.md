@@ -24,7 +24,7 @@ passwords/domain names/email addresses/ssl certificates.
 
 The misp-modules extensions functionality has been included and can be
 accessed from http://[dockerhostip]:6666/modules.
-(thanks to @radder5)
+(thanks to Conrad)
 
 # How to run it in 3 steps:
 
@@ -97,7 +97,7 @@ ever be an issue. The "rng-tools" is removed as part of the build
 process after it has been used.
 
 # Contributions:
-@radder5 - RNG Tools and MISP Modules
+Conrad Crampton: conrad.crampton@secdata.com - @radder5 - RNG Tools and MISP Modules
 
 # Help/Questions/Comments:
 For help or more info, feel free to contact Ventz Petkov: ventz_petkov@harvard.edu
