@@ -7,4 +7,4 @@ docker build \
     --build-arg POSTFIX_RELAY_HOST=localhost \
     --build-arg MISP_FQDN=localhost \
     --build-arg MISP_EMAIL=admin@localhost \
-    -t harvarditsecurity/misp container \
+    -t harvarditsecurity/misp container
