@@ -48,6 +48,12 @@ WORKDIR /var/www/MISP/app/files/scripts/python-stix
 RUN sudo -u www-data -H git checkout v1.1.1.4 ; \
     python setup.py install
 
+WORKDIR /var/www/MISP/app/files/scripts/
+RUN sudo -u www-data -H git clone https://github.com/CybOXProject/mixbox.git ; \
+    cd /var/www/MISP/app/files/scripts/mixbox ; \
+    sudo -u www-data -H git checkout v1.0.2 ; \
+    python setup.py install
+
 WORKDIR /var/www/MISP
 RUN sudo -u www-data -H git submodule init ; \
     sudo -u www-data -H git submodule update
