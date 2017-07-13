@@ -95,8 +95,6 @@ RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; 
     echo "<Directory /var/www/MISP/app/webroot>" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "Options -Indexes" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "Require all granted" >> /etc/apache2/sites-available/default-ssl.conf ; \
-    echo "Order allow,deny" >> /etc/apache2/sites-available/default-ssl.conf ; \
-    echo "allow from all" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "</Directory>" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "SSLEngine On" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "SSLCertificateFile /etc/ssl/private/misp.crt" >> /etc/apache2/sites-available/default-ssl.conf ; \
