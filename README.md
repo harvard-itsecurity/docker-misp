@@ -83,7 +83,7 @@ docker run -it -d \
 And in your ```/certs``` dir, create private/public certs with file names:
 
 * misp.key
-* misp.cert
+* misp.crt
 
 # Security note in regards to key generation:
 We have added "rng-tools" in order to help with entropy generation,

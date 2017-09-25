@@ -13,7 +13,7 @@ VOLUME /var/lib/mysql
 #VOLUME /var/www/MISP/Config
 
 # Dir you might want to override in order to have custom ssl certs
-# Need: "misp.key" and "misp.cert"
+# Need: "misp.key" and "misp.crt"
 #VOLUME /etc/ssl/private
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -94,6 +94,7 @@ RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; 
     echo "DocumentRoot /var/www/MISP/app/webroot" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "<Directory /var/www/MISP/app/webroot>" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "Options -Indexes" >> /etc/apache2/sites-available/default-ssl.conf ; \
+    echo "AllowOverride all" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "Require all granted" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "</Directory>" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "SSLEngine On" >> /etc/apache2/sites-available/default-ssl.conf ; \
