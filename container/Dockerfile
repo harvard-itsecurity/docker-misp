@@ -63,6 +63,7 @@ RUN sudo -H git clone https://github.com/MISP/misp-modules.git
 
 WORKDIR /usr/local/src/misp-modules
 RUN sudo pip3 install --upgrade pip ; \
+    sudo pip3 install stix2 ; \
     sudo pip3 install -I -r REQUIREMENTS ;  \
     sudo pip3 install -I .
 
