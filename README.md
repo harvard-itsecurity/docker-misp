@@ -26,6 +26,33 @@ The misp-modules extensions functionality has been included and can be
 accessed from http://[dockerhostip]:6666/modules.
 (thanks to Conrad)
 
+# Build Docker container vs using Dockerhub binary?
+
+We always recommend building your own Docker MISP image using our "build.sh" script.
+This allows you to change all the passwords and customize a few config options.
+
+That said, you can pull down the Dockerhub binary image, but this is
+_not_ supported or recommended. It's there purely for convenience, and so that you can "get
+a feel" for MISP without building it. It will by default contain "LOCALHOST" as all configured host everywhere, and this will only work on the same system or if you proxy/port forward.
+
+
+Building your own MISP Docker image is incredibly simple:
+```
+git clone https://github.com/harvard-itsecurity/docker-misp.git
+cd docker-misp
+
+# modify build.sh, specifically for:
+# 1.) all passwords (ROOT, MYSQL)
+# 2.) change at LEAST "MISP_FQDN" to your FQDN (domain)
+
+# Build the docker image - will take a bit, but it's a one time thing!
+# Run this from the root of "docker-misp"
+./build.sh
+```
+
+This will produce an image called: ```harvard-itsecurity/docker-misp```
+```
+
 # How to run it in 3 steps:
 
 ## 1. Initialize Database
