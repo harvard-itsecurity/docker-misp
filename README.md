@@ -51,7 +51,6 @@ cd docker-misp
 ```
 
 This will produce an image called: ```harvard-itsecurity/docker-misp```
-```
 
 # How to run it in 3 steps:
 
