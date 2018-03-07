@@ -73,7 +73,7 @@ RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; 
     sudo -u www-data -H php composer.phar require kamisama/cake-resque:4.1.2 ; \
     sudo -u www-data -H php composer.phar config vendor-dir Vendor ; \
     sudo -u www-data -H php composer.phar install ; \
-    phpenmod redis ; \
+    sudo phpenmod redis ; \
     sudo -u www-data -H cp -fa /var/www/MISP/INSTALL/setup/config.php /var/www/MISP/app/Plugin/CakeResque/Config/config.php ; \
     sudo chown -R www-data:www-data /var/www/MISP ; \
     sudo chmod -R 750 /var/www/MISP ; \
@@ -122,6 +122,11 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sudo pip install --upgrade pip ; \
     sudo pip install pyzmq ; \
     sudo pip install redis ; \
+    sudo -u www-data -H wget http://downloads.sourceforge.net/project/ssdeep/ssdeep-2.13/ssdeep-2.13.tar.gz ; \
+    tar zxvf ssdeep-2.13.tar.gz && cd ssdeep-2.13 && ./configure && make && sudo make install ; \
+    sudo pecl install ssdeep ; \
+    sudo echo "extension=ssdeep.so" > /etc/php/7.0/mods-available/ssdeep.ini ; \
+    sudo phpenmod ssdeep ; \
     echo "#!/bin/bash" > /init-db ; \
     echo "if [ ! -f /var/lib/mysql/.db_initialized ]; then" >> /init-db ; \
     echo "sudo chown -R mysql:mysql /var/lib/mysql" >> /init-db ; \

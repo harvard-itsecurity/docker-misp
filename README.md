@@ -1,11 +1,17 @@
 Docker MISP Container
 =====================
+### Latest Update: 3-7-2018
+
+Latest Upstream Change Included: 6df6cc79bc0dbbc0307d57767ac47c09f1a0bf1c
+
+Github repo + build script here:
+https://github.com/harvard-itsecurity/docker-misp
+(note: after a git pull, update ```build.sh``` with your own passwords/FQDN, and then build the image)
+
 NOTE: Cannot autobuild on DockerHub due to size+time limit, and we
 refuse to break this up into multiple images and chain them just to
 get around the tiny resources that DockerHub provides!
 
-Github repo + build script here:
-https://github.com/harvard-itsecurity/docker-misp
 
 # What is this?
 This is an easy and highly customizable Docker container with MISP -
@@ -54,11 +60,15 @@ This will produce an image called: ```harvarditsecurity/docker-misp```
 
 # How to run it in 3 steps:
 
+About ```$docker-root``` - If you are running Docker on a Mac, there are some mount directory restrictions by default (see: https://docs.docker.com/docker-for-mac/osxfs/#namespaces). Your ```$docker-root``` needs to be either one of the supported defaults ("Users", "Volumes", "private", or "tmp"), otherwise, you must go to "Preferences" -> "File Sharing" and add your chosen $docker-root to the list.
+
+We would suggest using ```/docker``` for your ```$docker-root```, and if using a Mac, adding that to the File Sharing list.
+
 ## 1. Initialize Database
 
 ```
 docker run -it --rm \
-    -v /misp-db:/var/lib/mysql \
+    -v $docker-root/misp-db:/var/lib/mysql \
     harvarditsecurity/misp /init-db
 ```
 
@@ -68,7 +78,7 @@ docker run -it -d \
     -p 443:443 \
     -p 80:80 \
     -p 3306:3306 \
-    -v /misp-db:/var/lib/mysql \
+    -v $docker-root/misp-db:/var/lib/mysql \
     harvarditsecurity/misp
 ```
 
@@ -101,8 +111,8 @@ docker run -it -d \
     -p 443:443 \
     -p 80:80 \
     -p 3306:3306 \
-    -v /certs:/etc/ssl/private \
-    -v /misp-db:/var/lib/mysql \
+    -v $docker-root/certs:/etc/ssl/private \
+    -v $docker-root/misp-db:/var/lib/mysql \
     harvarditsecurity/misp
 ```
 
