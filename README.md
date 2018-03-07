@@ -65,8 +65,8 @@ This will produce an image called: ```harvarditsecurity/docker-misp```
     -v /misp-db:/var/lib/mysql \
     harvarditsecurity/misp /init-db
 ```
-Note: If running Docker on Mac OSX, you have to first create a shared path or the database
-will not initialize. This is due to the limited way OSX allows for volume binding. 
+Note: If running Docker on Mac OSX, you have to first explicitly create a shared directory
+path or the database will not initialize. This is due to the limited way OSX allows for volume binding. 
 
 ## 2. Start the container
 ```
