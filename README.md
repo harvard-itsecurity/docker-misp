@@ -57,10 +57,16 @@ This will produce an image called: ```harvarditsecurity/docker-misp```
 ## 1. Initialize Database
 
 ```
-docker run -it --rm \
+    # for mac osx users, you need to run this command first(see note below):
+    docker run --rm -v /:/host alpine mkdir -p /host/misp-db
+    
+    # all others can start here
+    docker run -it --rm \
     -v /misp-db:/var/lib/mysql \
     harvarditsecurity/misp /init-db
 ```
+Note: If running Docker on Mac OSX, you have to first explicitly create a shared directory
+path or the database will not initialize. This is due to the limited way OSX allows for volume binding. 
 
 ## 2. Start the container
 ```
