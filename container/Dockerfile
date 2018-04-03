@@ -119,9 +119,12 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sed -i -e "s/email@address.com/${MISP_EMAIL}/" /var/www/MISP/app/Config/config.php ; \
     sudo chown -R www-data:www-data /var/www/MISP/app/Config ; \
     sudo chmod -R 750 /var/www/MISP/app/Config ; \
-    sudo pip install --upgrade pip ; \
-    sudo pip install pyzmq ; \
-    sudo pip install redis ; \
+    sudo pip2 install --upgrade pip ; \
+    sudo pip2 install pyzmq ; \
+    sudo pip2 install redis ; \
+    sudo pip3 install --upgrade pip ; \
+    sudo pip3 install pyzmq ; \
+    sudo pip3 install redis ; \
     sudo -u www-data -H wget http://downloads.sourceforge.net/project/ssdeep/ssdeep-2.13/ssdeep-2.13.tar.gz ; \
     tar zxvf ssdeep-2.13.tar.gz && cd ssdeep-2.13 && ./configure && make && sudo make install ; \
     sudo pecl install ssdeep ; \
