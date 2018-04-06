@@ -10,11 +10,12 @@ ARG MISP_EMAIL=admin@localhost
 
 # Dir you need to override to keep data on reboot/new container:
 VOLUME /var/lib/mysql
-#VOLUME /var/www/MISP/Config
 
 # Dir you might want to override in order to have custom ssl certs
 # Need: "misp.key" and "misp.crt"
-#VOLUME /etc/ssl/private
+VOLUME /etc/ssl/private
+
+EXPOSE 80 443 3306 6379 50000
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools rng-tools python3 python3-dev python3-pip libpq5 libjpeg-dev
@@ -111,6 +112,8 @@ RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; 
     sudo -u www-data cp -a /var/www/MISP/app/Config/database.default.php /var/www/MISP/app/Config/database.php ; \
     sudo -u www-data cp -a /var/www/MISP/app/Config/core.default.php /var/www/MISP/app/Config/core.php ; \
     sudo -u www-data cp -a /var/www/MISP/app/Config/config.default.php /var/www/MISP/app/Config/config.php
+
+VOLUME /var/www/MISP/app/Config
 
 RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sed -i -e "s/db password/${MYSQL_MISP_PASSWORD}/g" /var/www/MISP/app/Config/database.php ; \
