@@ -10,11 +10,10 @@ ARG MISP_EMAIL=admin@localhost
 
 # Dir you need to override to keep data on reboot/new container:
 VOLUME /var/lib/mysql
-#VOLUME /var/www/MISP/Config
 
 # Dir you might want to override in order to have custom ssl certs
 # Need: "misp.key" and "misp.crt"
-#VOLUME /etc/ssl/private
+VOLUME /etc/ssl/private
 
 # 80/443 - MISP web server, 3306 - mysql, 6379 - redis, 50000 - MISP ZeroMQ
 EXPOSE 80 443 3306 6379 50000
@@ -38,6 +37,11 @@ RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng
     sudo -u www-data -H git checkout tags/$(git describe --tags `git rev-list --tags --max-count=1`) ; \
     sudo -u www-data -H git config core.filemode false ; \
     echo
+
+# Dir you need to override to keep app config on reboot/new container. This
+# appears after the git clone above to avoid a failure that would occur if
+# trying to clone into a non-empty directory.
+VOLUME /var/www/MISP/app/Config
 
 WORKDIR /var/www/MISP/app/files/scripts
 RUN sudo -u www-data -H git clone https://github.com/CybOXProject/python-cybox.git ; \
@@ -83,7 +87,6 @@ RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; 
     sudo chmod -R g+ws /var/www/MISP/app/tmp ; \
     sudo chmod -R g+ws /var/www/MISP/app/files ; \
     sudo chmod -R g+ws /var/www/MISP/app/files/scripts/tmp ; \
-    openssl req -x509 -nodes -days 3650 -newkey rsa:4096 -keyout /etc/ssl/private/misp.key -out /etc/ssl/private/misp.crt -batch ; \
     echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf ; \
     echo "ServerName $MISP_FQDN" >> /etc/apache2/sites-available/000-default.conf ; \
     echo "Redirect permanent / https://$MISP_FQDN" >> /etc/apache2/sites-available/000-default.conf ; \
@@ -110,18 +113,28 @@ RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; 
     echo "ServerSignature Off" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "</VirtualHost>" >> /etc/apache2/sites-available/default-ssl.conf ; \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf ; \
-    sudo -u www-data cp -a /var/www/MISP/app/Config/bootstrap.default.php /var/www/MISP/app/Config/bootstrap.php ; \
-    sudo -u www-data cp -a /var/www/MISP/app/Config/database.default.php /var/www/MISP/app/Config/database.php ; \
-    sudo -u www-data cp -a /var/www/MISP/app/Config/core.default.php /var/www/MISP/app/Config/core.php ; \
-    sudo -u www-data cp -a /var/www/MISP/app/Config/config.default.php /var/www/MISP/app/Config/config.php
+    sudo cp -aR /var/www/MISP/app/Config /.misp_config_default
 
-RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
-    sed -i -e "s/db password/${MYSQL_MISP_PASSWORD}/g" /var/www/MISP/app/Config/database.php ; \
-    sed -i -E "s/'salt'(\s+)=>\s''/'salt' => '`openssl rand -base64 32 | tr \'/\' \'0\'`'/" /var/www/MISP/app/Config/config.php ; \
-    sed -i -E "s/'baseurl'(\s+)=>\s''/'baseurl' => 'https:\/\/${MISP_FQDN}'/" /var/www/MISP/app/Config/config.php ; \
-    sed -i -e "s/email@address.com/${MISP_EMAIL}/" /var/www/MISP/app/Config/config.php ; \
-    sudo chown -R www-data:www-data /var/www/MISP/app/Config ; \
-    sudo chmod -R 750 /var/www/MISP/app/Config ; \
+RUN echo "#!/bin/bash" > /.misp_config_default/init-misp-config ; \
+    echo "if [ ! -f /var/www/MISP/app/Config/.misp_config_initialized ]; then " >> /.misp_config_default/init-misp-config ; \
+    echo "sudo -u www-data mkdir -p /var/www/MISP/app/Config" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo cp -aR /.misp_config_default/*.php /var/www/MISP/app/Config" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo chown -R www-data:www-data /var/www/MISP/app/Config" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo -u www-data cp -a /var/www/MISP/app/Config/bootstrap.default.php /var/www/MISP/app/Config/bootstrap.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo -u www-data cp -a /var/www/MISP/app/Config/database.default.php /var/www/MISP/app/Config/database.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo -u www-data cp -a /var/www/MISP/app/Config/core.default.php /var/www/MISP/app/Config/core.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo -u www-data cp -a /var/www/MISP/app/Config/config.default.php /var/www/MISP/app/Config/config.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sed -i -e \"s/db login/misp/g\" /var/www/MISP/app/Config/database.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sed -i -e \"s/db password/$MYSQL_MISP_PASSWORD/g\" /var/www/MISP/app/Config/database.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sed -i -E \"s/'salt'(\s+)=>\s''/'salt' => '`openssl rand -base64 32 | tr \'/\' \'0\'`'/\" /var/www/MISP/app/Config/config.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sed -i -E \"s/'baseurl'(\s+)=>\s''/'baseurl' => 'https:\/\/$MISP_FQDN'/\" /var/www/MISP/app/Config/config.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sed -i -e \"s/email@address.com/$MISP_EMAIL/\" /var/www/MISP/app/Config/config.php" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo chown -R www-data:www-data /var/www/MISP/app/Config" >> /.misp_config_default/init-misp-config ; \
+    echo "touch /var/www/MISP/app/Config/.misp_config_initialized" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo chmod -R 750 /var/www/MISP/app/Config" >> /.misp_config_default/init-misp-config ; \
+    echo "fi" >> /.misp_config_default/init-misp-config ; \
+    echo "sudo rm -fR /.misp_config_default" >> /.misp_config_default/init-misp-config ; \
+    chmod 755 /.misp_config_default/init-misp-config ; \
     sudo pip2 install --upgrade pip ; \
     sudo pip2 install pyzmq ; \
     sudo pip2 install redis ; \
@@ -152,7 +165,7 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     echo "touch /var/lib/mysql/.db_initialized" >> /init-db ; \
     echo "chown -R mysql:mysql /var/lib/mysql" >> /init-db ; \
     echo "fi" >> /init-db ; \
-    echo "rm -f /init-db" >> /init-db ; \
+    echo "sudo rm -f /init-db" >> /init-db ; \
     chmod 755 /init-db ; \
     echo "#!/bin/bash" > /misp-bug-fix ; \
     echo "cd '/usr' ; /usr/bin/mysqld_safe --datadir='/var/lib/mysql' &" >> /misp-bug-fix ; \
@@ -201,4 +214,5 @@ COPY supervisord.conf /etc/supervisor/conf.d/
 # To change it:
 #echo "/var/www/MISP/app/Console/cake Password 'admin@admin.test' '@dmin1!'" >> /root/init-db ; \
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+COPY startup.sh /
+CMD ["/startup.sh"]
