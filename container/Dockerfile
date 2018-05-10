@@ -16,6 +16,9 @@ VOLUME /var/lib/mysql
 # Need: "misp.key" and "misp.crt"
 #VOLUME /etc/ssl/private
 
+# 80/443 - MISP web server, 3306 - mysql, 6379 - redis, 50000 - MISP ZeroMQ
+EXPOSE 80 443 3306 6379 50000
+
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools rng-tools python3 python3-dev python3-pip libpq5 libjpeg-dev
 
