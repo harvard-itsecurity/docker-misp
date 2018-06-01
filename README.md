@@ -1,8 +1,8 @@
 Docker MISP Container
 =====================
-### Latest Update: 4-10-2018
+### Latest Update: 5-31-2018
 
-Latest Upstream Change Included: 6df6cc79bc0dbbc0307d57767ac47c09f1a0bf1c
+Latest Upstream Change Included: 1b72988e56b0118862fe61c1e60acab134c5073d
 
 Github repo + build script here:
 https://github.com/harvard-itsecurity/docker-misp

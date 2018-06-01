@@ -20,7 +20,7 @@ VOLUME /var/lib/mysql
 EXPOSE 80 443 3306 6379 50000
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools rng-tools python3 python3-dev python3-pip libpq5 libjpeg-dev
+RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis rng-tools python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools libpq5 libjpeg-dev
 
     #echo "test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld" ; \
 RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng/syslog-ng.conf ; \
@@ -44,22 +44,22 @@ RUN sudo -u www-data -H git clone https://github.com/CybOXProject/python-cybox.g
     sudo -u www-data -H git clone https://github.com/STIXProject/python-stix.git
 
 WORKDIR /var/www/MISP/app/files/scripts/python-cybox
-RUN sudo -u www-data -H git checkout v2.1.0.12 ; \
-    python setup.py install
+RUN python3 setup.py install
 
 WORKDIR /var/www/MISP/app/files/scripts/python-stix
-RUN sudo -u www-data -H git checkout v1.1.1.4 ; \
-    python setup.py install
+RUN python3 setup.py install
 
 WORKDIR /var/www/MISP/app/files/scripts/
 RUN sudo -u www-data -H git clone https://github.com/CybOXProject/mixbox.git ; \
     cd /var/www/MISP/app/files/scripts/mixbox ; \
-    sudo -u www-data -H git checkout v1.0.2 ; \
-    python setup.py install
+    python3 setup.py install
 
 WORKDIR /var/www/MISP
 RUN sudo -u www-data -H git submodule init ; \
     sudo -u www-data -H git submodule update
+
+WORKDIR /var/www/MISP/PyMISP
+RUN python3 setup.py install
 
 WORKDIR /usr/local/src
 RUN sudo -H git clone https://github.com/MISP/misp-modules.git
