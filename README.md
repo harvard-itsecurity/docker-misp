@@ -2,6 +2,7 @@ Docker MISP Container
 =====================
 ### Latest Update: 5-31-2018
 
+Following the Official MISP Ubuntu 18.04 LTS build instructions.
 Latest Upstream Change Included: 1b72988e56b0118862fe61c1e60acab134c5073d
 
 Github repo + build script here:
@@ -48,7 +49,7 @@ git clone https://github.com/harvard-itsecurity/docker-misp.git
 cd docker-misp
 
 # modify build.sh, specifically for:
-# 1.) all passwords (ROOT, MYSQL)
+# 1.) all passwords (MYSQL)
 # 2.) change at LEAST "MISP_FQDN" to your FQDN (domain)
 
 # Build the docker image - will take a bit, but it's a one time thing!
@@ -95,7 +96,6 @@ And change the password! :)
 # What can you customize/pass during build?
 You can customize the ```build.sh``` script to pass custom:
 
-* MYSQL_ROOT_PASSWORD
 * MYSQL_MISP_PASSWORD
 * POSTFIX_RELAY_HOST
 * MISP_FQDN
