@@ -1,8 +1,7 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 MAINTAINER Ventz Petkov <ventz_petkov@harvard.edu>
 
 # User supplied inputs
-ARG MYSQL_ROOT_PASSWORD=ChangeThisDefaultPassworda9564ebc3289b7a14551baf8ad5ec60a
 ARG MYSQL_MISP_PASSWORD=ChangeThisDefaultPassworda9564ebc3289b7a14551baf8ad5ec60a
 ARG POSTFIX_RELAY_HOST=localhost
 ARG MISP_FQDN=localhost
@@ -20,20 +19,18 @@ VOLUME /var/lib/mysql
 EXPOSE 80 443 3306 6379 50000
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-crypt-gpg php-dev php-json php-mysql php-opcache php-readline php-redis rng-tools python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools libpq5 libjpeg-dev
+RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-gnupg php-dev php-json php-mysql php-opcache php-readline php-redis php-xml php-mbstring rng-tools python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools libpq5 libjpeg-dev
 
     #echo "test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld" ; \
 RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng/syslog-ng.conf ; \
     postconf -e "relayhost = $POSTFIX_RELAY_HOST" ; \
-    echo "mysql-server mysql-server/root_password password $MYSQL_ROOT_PASSWORD" | debconf-set-selections ; \
-    echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD" | debconf-set-selections ; \
     test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld ; \
     a2dismod status ; \
     a2enmod ssl rewrite headers; \
     a2ensite 000-default ; \
     a2ensite default-ssl ; \
-    mkdir -p /var/www/MISP /root/.config /root/.gitconfig ; \
-    chown -R www-data:www-data /var/www/MISP /root/.config /root/.gitconfig; \
+    mkdir -p /var/www/MISP /root/.config /root/.git ; \
+    chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
     sudo -u www-data -H git clone https://github.com/MISP/MISP.git /var/www/MISP ; \
     sudo -u www-data -H git checkout tags/$(git describe --tags `git rev-list --tags --max-count=1`) ; \
     sudo -u www-data -H git config core.filemode false ; \
@@ -61,13 +58,14 @@ RUN sudo -u www-data -H git submodule init ; \
 WORKDIR /var/www/MISP/PyMISP
 RUN python3 setup.py install
 
+RUN sudo pip3 install --upgrade pip ; \
+    sudo pip3 install stix2
+
 WORKDIR /usr/local/src
 RUN sudo -H git clone https://github.com/MISP/misp-modules.git
 
 WORKDIR /usr/local/src/misp-modules
-RUN sudo pip3 install --upgrade pip ; \
-    sudo pip3 install stix2 ; \
-    sudo pip3 install -I -r REQUIREMENTS ;  \
+RUN sudo pip3 install -I -r REQUIREMENTS ;  \
     sudo pip3 install -I .
 
 WORKDIR /var/www/MISP/app
@@ -120,6 +118,7 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sed -i -E "s/'salt'(\s+)=>\s''/'salt' => '`openssl rand -base64 32 | tr \'/\' \'0\'`'/" /var/www/MISP/app/Config/config.php ; \
     sed -i -E "s/'baseurl'(\s+)=>\s''/'baseurl' => 'https:\/\/${MISP_FQDN}'/" /var/www/MISP/app/Config/config.php ; \
     sed -i -e "s/email@address.com/${MISP_EMAIL}/" /var/www/MISP/app/Config/config.php ; \
+    sed -i -e "s/bind 127.0.0.1 ::1/bind 0.0.0.0/" /etc/redis/redis.conf ; \
     sudo chown -R www-data:www-data /var/www/MISP/app/Config ; \
     sudo chmod -R 750 /var/www/MISP/app/Config ; \
     sudo pip2 install --upgrade pip ; \
@@ -140,26 +139,20 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     echo "chown -R mysql:mysql /var/lib/mysql" >> /init-db ; \
     echo "cd '/usr' ; /usr/bin/mysqld_safe --datadir='/var/lib/mysql' &" >> /init-db ; \
     echo "sleep 5" >> /init-db ; \
-    echo "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e \"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')\"" >> /init-db ; \
-    echo "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e \"DELETE FROM mysql.user WHERE User=''\"" >> /init-db ; \
-    echo "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e \"DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'\"" >> /init-db ; \
-    echo "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e \"FLUSH PRIVILEGES;\"" >> /init-db ; \
-    echo "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e \"create database misp\"" >> /init-db ; \
-    echo "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e \"grant usage on *.* to misp@localhost identified by '$MYSQL_MISP_PASSWORD'\"" >> /init-db ; \
-    echo "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e \"grant all privileges on misp.* to misp@localhost\"" >> /init-db ; \
-    echo "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e \"flush privileges;\"" >> /init-db ; \
+    echo "mysql -uroot -e \"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')\"" >> /init-db ; \
+    echo "mysql -uroot -e \"DELETE FROM mysql.user WHERE User=''\"" >> /init-db ; \
+    echo "mysql -uroot -e \"DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'\"" >> /init-db ; \
+    echo "mysql -uroot -e \"FLUSH PRIVILEGES;\"" >> /init-db ; \
+    echo "mysql -uroot -e \"create database misp\"" >> /init-db ; \
+    echo "mysql -uroot -e \"grant usage on *.* to misp@localhost identified by '$MYSQL_MISP_PASSWORD'\"" >> /init-db ; \
+    echo "mysql -uroot -e \"grant all privileges on misp.* to misp@localhost\"" >> /init-db ; \
+    echo "mysql -uroot -e \"flush privileges;\"" >> /init-db ; \
     echo "sudo -u www-data -H sh -c \"mysql -u misp -p$MYSQL_MISP_PASSWORD misp < /var/www/MISP/INSTALL/MYSQL.sql\"" >> /init-db ; \
     echo "touch /var/lib/mysql/.db_initialized" >> /init-db ; \
     echo "chown -R mysql:mysql /var/lib/mysql" >> /init-db ; \
     echo "fi" >> /init-db ; \
     echo "rm -f /init-db" >> /init-db ; \
     chmod 755 /init-db ; \
-    echo "#!/bin/bash" > /misp-bug-fix ; \
-    echo "cd '/usr' ; /usr/bin/mysqld_safe --datadir='/var/lib/mysql' &" >> /misp-bug-fix ; \
-    echo "sleep 5" >> /misp-bug-fix ; \
-    echo "mysql -D misp -uroot -p$MYSQL_ROOT_PASSWORD -e \"delete from users where id = 1 limit 1;\"" >> /misp-bug-fix ; \
-    echo "rm -f /misp-bug-fix" >> /misp-bug-fix ; \
-    chmod 755 /misp-bug-fix ; \
     sudo -u www-data -H mkdir /var/www/MISP/.gnupg ; \
     chmod 700 /var/www/MISP/.gnupg ; \
     echo "Key-Type: 1" > /tmp/config_gpg ; \
