@@ -1,6 +1,6 @@
 Docker MISP Container
 =====================
-### Latest Update: 5-31-2018
+### Latest Update: 6-12-2018
 
 Following the Official MISP Ubuntu 18.04 LTS build instructions.
 
@@ -134,8 +134,11 @@ ever be an issue. The "rng-tools" is removed as part of the build
 process after it has been used.
 
 # Contributions:
-Conrad Crampton: conrad.crampton@secdata.com - @radder5 - RNG Tools and MISP Modules
+Conrad Crampton: @radder5 - RNG Tools and MISP Modules
+
 Jeremy Barlow: @jbarlow-mcafee - Cleanup, configs, conveniences, python 2 vs 3 compatibility
+
+Matt Saunders: @matt-saunders - Fixed all install warnings and errors
 
 # Help/Questions/Comments:
 For help or more info, feel free to contact Ventz Petkov: ventz_petkov@harvard.edu
