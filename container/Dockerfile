@@ -29,8 +29,10 @@ RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng
     a2enmod ssl rewrite headers; \
     a2ensite 000-default ; \
     a2ensite default-ssl ; \
-    mkdir -p /var/www/MISP /root/.config /root/.git ; \
-    chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
+    mkdir -p /var/www/MISP /root/.config /root/.git
+
+WORKDIR /var/www/MISP
+RUN chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
     sudo -u www-data -H git clone https://github.com/MISP/MISP.git /var/www/MISP ; \
     sudo -u www-data -H git checkout tags/$(git describe --tags `git rev-list --tags --max-count=1`) ; \
     sudo -u www-data -H git config core.filemode false ; \
@@ -54,6 +56,9 @@ RUN sudo -u www-data -H git clone https://github.com/CybOXProject/mixbox.git ; \
 WORKDIR /var/www/MISP
 RUN sudo -u www-data -H git submodule init ; \
     sudo -u www-data -H git submodule update
+
+RUN sudo pip3 install jsonschema ; \
+    sudo pip3 install pymisp
 
 WORKDIR /var/www/MISP/PyMISP
 RUN python3 setup.py install
@@ -130,7 +135,7 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sudo -u www-data -H wget http://downloads.sourceforge.net/project/ssdeep/ssdeep-2.13/ssdeep-2.13.tar.gz ; \
     tar zxvf ssdeep-2.13.tar.gz && cd ssdeep-2.13 && ./configure && make && sudo make install ; \
     sudo pecl install ssdeep ; \
-    sudo echo "extension=ssdeep.so" > /etc/php/7.0/mods-available/ssdeep.ini ; \
+    sudo echo "extension=ssdeep.so" > /etc/php/7.2/mods-available/ssdeep.ini ; \
     sudo phpenmod ssdeep ; \
     echo "#!/bin/bash" > /init-db ; \
     echo "if [ ! -f /var/lib/mysql/.db_initialized ]; then" >> /init-db ; \
