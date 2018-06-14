@@ -73,6 +73,8 @@ WORKDIR /usr/local/src/misp-modules
 RUN sudo pip3 install -I -r REQUIREMENTS ;  \
     sudo pip3 install -I .
 
+RUN sudo pip3 uninstall -y cybox
+
 WORKDIR /var/www/MISP/app
 RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; \
     sudo -u www-data -H wget https://getcomposer.org/download/1.2.1/composer.phar -O composer.phar ; \
