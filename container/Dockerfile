@@ -43,15 +43,15 @@ RUN sudo -u www-data -H git clone https://github.com/CybOXProject/python-cybox.g
     sudo -u www-data -H git clone https://github.com/STIXProject/python-stix.git
 
 WORKDIR /var/www/MISP/app/files/scripts/python-cybox
-RUN python3 setup.py install
+RUN sudo python3 setup.py install
 
 WORKDIR /var/www/MISP/app/files/scripts/python-stix
-RUN python3 setup.py install
+RUN sudo python3 setup.py install
 
 WORKDIR /var/www/MISP/app/files/scripts/
 RUN sudo -u www-data -H git clone https://github.com/CybOXProject/mixbox.git ; \
     cd /var/www/MISP/app/files/scripts/mixbox ; \
-    python3 setup.py install
+    sudo python3 setup.py install
 
 WORKDIR /var/www/MISP
 RUN sudo -u www-data -H git submodule init ; \
@@ -72,6 +72,8 @@ RUN sudo -H git clone https://github.com/MISP/misp-modules.git
 WORKDIR /usr/local/src/misp-modules
 RUN sudo pip3 install -I -r REQUIREMENTS ;  \
     sudo pip3 install -I .
+
+RUN sudo pip3 uninstall -y cybox
 
 WORKDIR /var/www/MISP/app
 RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; \
@@ -126,9 +128,6 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sed -i -e "s/bind 127.0.0.1 ::1/bind 0.0.0.0/" /etc/redis/redis.conf ; \
     sudo chown -R www-data:www-data /var/www/MISP/app/Config ; \
     sudo chmod -R 750 /var/www/MISP/app/Config ; \
-    sudo pip2 install --upgrade pip ; \
-    sudo pip2 install pyzmq ; \
-    sudo pip2 install redis ; \
     sudo pip3 install --upgrade pip ; \
     sudo pip3 install pyzmq ; \
     sudo pip3 install redis ; \
@@ -190,8 +189,8 @@ RUN echo "/var/www/MISP/app/tmp/logs/resque-*-error.log {" > misp ; \
     echo "      weekly" >> misp ; \
     echo "      copytruncate" >> misp ; \
     echo "}" >> misp
-    
-    
+
+
 WORKDIR /var/www/MISP
 COPY supervisord.conf /etc/supervisor/conf.d/
 
