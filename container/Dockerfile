@@ -21,6 +21,12 @@ EXPOSE 80 443 3306 6379 50000
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-gnupg php-dev php-json php-mysql php-opcache php-readline php-redis php-xml php-mbstring rng-tools python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools libpq5 libjpeg-dev
 
+# Edit the php.ini file to adjust initial PHP settings to MISP recommended settings
+RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.2/apache2/php.ini ; \
+    sed -i "s/memory_limit = 128M/memory_limit = 512M/" /etc/php/7.2/apache2/php.ini ; \
+    sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" /etc/php/7.2/apache2/php.ini ; \
+    sed -i "s/post_max_size = 8M/post_max_size = 50M/" /etc/php/7.2/apache2/php.ini
+
     #echo "test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld" ; \
 RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng/syslog-ng.conf ; \
     postconf -e "relayhost = $POSTFIX_RELAY_HOST" ; \
