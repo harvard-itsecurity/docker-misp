@@ -1,19 +1,14 @@
 Docker MISP Container
 =====================
-### Latest Update: 6-12-2018
+### Latest Update: 7-7-2018
 
 Following the Official MISP Ubuntu 18.04 LTS build instructions.
 
-Latest Upstream Change Included: 1b72988e56b0118862fe61c1e60acab134c5073d
+Latest Upstream Change Included: 29dc4adbdfc1412989efbaf5463e5d7d897a153b
 
 Github repo + build script here:
 https://github.com/harvard-itsecurity/docker-misp
 (note: after a git pull, update ```build.sh``` with your own passwords/FQDN, and then build the image)
-
-NOTE: Cannot autobuild on DockerHub due to size+time limit, and we
-refuse to break this up into multiple images and chain them just to
-get around the tiny resources that DockerHub provides!
-
 
 # What is this?
 This is an easy and highly customizable Docker container with MISP -
@@ -65,6 +60,8 @@ This will produce an image called: ```harvarditsecurity/docker-misp```
 About ```$docker-root``` - If you are running Docker on a Mac, there are some mount directory restrictions by default (see: https://docs.docker.com/docker-for-mac/osxfs/#namespaces). Your ```$docker-root``` needs to be either one of the supported defaults ("Users", "Volumes", "private", or "tmp"), otherwise, you must go to "Preferences" -> "File Sharing" and add your chosen $docker-root to the list.
 
 We would suggest using ```/docker``` for your ```$docker-root```, and if using a Mac, adding that to the File Sharing list.
+
+Once you have your DB directory created (```mkdir -p /docker/misp-db```), follow the 3 steps:
 
 ## 1. Initialize Database
 
