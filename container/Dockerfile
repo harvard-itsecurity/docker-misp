@@ -40,7 +40,6 @@ RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng
 WORKDIR /var/www/MISP
 RUN chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
     sudo -u www-data -H git clone https://github.com/MISP/MISP.git /var/www/MISP ; \
-    sudo -u www-data -H git checkout tags/$(git describe --tags `git rev-list --tags --max-count=1`) ; \
     sudo -u www-data -H git submodule init ; \
     sudo -u www-data -H git submodule update ; \
     sudo -u www-data -H git submodule foreach git config core.filemode false ; \

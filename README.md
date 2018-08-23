@@ -1,10 +1,10 @@
 Docker MISP Container
 =====================
-### Latest Update: 7-7-2018
+### Latest Update: 8-22-2018
 
 Following the Official MISP Ubuntu 18.04 LTS build instructions.
 
-Latest Upstream Change Included: 29dc4adbdfc1412989efbaf5463e5d7d897a153b
+Latest Upstream Change Included: e1fc7b2e50580e7f826d6cae4bb0debf43658db2
 
 Github repo + build script here:
 https://github.com/harvard-itsecurity/docker-misp
