@@ -196,7 +196,8 @@ RUN echo "/var/www/MISP/app/tmp/logs/resque-*-error.log {" > misp ; \
     echo "      compress" >> misp ; \
     echo "      weekly" >> misp ; \
     echo "      copytruncate" >> misp ; \
-    echo "}" >> misp
+    echo "}" >> misp ; \
+    chmod 0640 /etc/logrotate.d/misp
 
 
 WORKDIR /var/www/MISP
