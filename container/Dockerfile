@@ -48,12 +48,16 @@ RUN chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
 
 WORKDIR /var/www/MISP/app/files/scripts
 RUN sudo -u www-data -H git clone https://github.com/CybOXProject/python-cybox.git ; \
-    sudo -u www-data -H git clone https://github.com/STIXProject/python-stix.git
+    sudo -u www-data -H git clone https://github.com/STIXProject/python-stix.git ; \
+    sudo -u www-data -H git clone https://github.com/MAECProject/python-maec.git
 
 WORKDIR /var/www/MISP/app/files/scripts/python-cybox
 RUN sudo python3 setup.py install
 
 WORKDIR /var/www/MISP/app/files/scripts/python-stix
+RUN sudo python3 setup.py install
+
+WORKDIR /var/www/MISP/app/files/scripts/python-maec
 RUN sudo python3 setup.py install
 
 WORKDIR /var/www/MISP/app/files/scripts/
