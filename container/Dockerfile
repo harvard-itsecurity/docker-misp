@@ -40,16 +40,19 @@ RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng
 WORKDIR /var/www/MISP
 RUN chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
     sudo -u www-data -H git clone https://github.com/MISP/MISP.git /var/www/MISP ; \
-    sudo -u www-data -H git submodule init ; \
-    sudo -u www-data -H git submodule update ; \
-    sudo -u www-data -H git submodule foreach git config core.filemode false ; \
+    sudo -u www-data -H git submodule update --init --recursive ; \
+    sudo -u www-data -H git submodule foreach --recursive git config core.filemode false ; \
     sudo -u www-data -H git config core.filemode false ; \
     echo
 
 WORKDIR /var/www/MISP/app/files/scripts
 RUN sudo -u www-data -H git clone https://github.com/CybOXProject/python-cybox.git ; \
     sudo -u www-data -H git clone https://github.com/STIXProject/python-stix.git ; \
-    sudo -u www-data -H git clone https://github.com/MAECProject/python-maec.git
+    sudo -u www-data -H git clone https://github.com/MAECProject/python-maec.git ; \
+    sudo -u www-data -H git clone https://github.com/CybOXProject/mixbox.git
+
+WORKDIR /var/www/MISP/app/files/scripts/mixbox
+RUN sudo python3 setup.py install
 
 WORKDIR /var/www/MISP/app/files/scripts/python-cybox
 RUN sudo python3 setup.py install
@@ -60,10 +63,8 @@ RUN sudo python3 setup.py install
 WORKDIR /var/www/MISP/app/files/scripts/python-maec
 RUN sudo python3 setup.py install
 
-WORKDIR /var/www/MISP/app/files/scripts/
-RUN sudo -u www-data -H git clone https://github.com/CybOXProject/mixbox.git ; \
-    cd /var/www/MISP/app/files/scripts/mixbox ; \
-    sudo python3 setup.py install
+WORKDIR /var/www/MISP/cti-python-stix2
+RUN sudo python3 setup.py install
 
 WORKDIR /var/www/MISP
 RUN sudo -u www-data -H git submodule init ; \
