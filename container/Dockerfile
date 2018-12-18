@@ -19,7 +19,7 @@ VOLUME /var/lib/mysql
 EXPOSE 80 443 3306 6379 50000
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-gnupg php-dev php-json php-mysql php-opcache php-readline php-redis php-xml php-mbstring rng-tools python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools libpq5 libjpeg-dev
+RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent cmake make python python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-gnupg php-dev php-json php-mysql php-opcache php-readline php-redis php-xml php-mbstring rng-tools python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools libpq5 libjpeg-dev libfuzzy-dev
 
 # Edit the php.ini file to adjust initial PHP settings to MISP recommended settings
 RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.2/apache2/php.ini ; \
@@ -81,6 +81,26 @@ RUN sudo pip3 install --upgrade pip ; \
 
 WORKDIR /usr/local/src
 RUN sudo -H git clone https://github.com/MISP/misp-modules.git
+
+WORKDIR /tmp
+RUN sudo -H git clone https://github.com/stricaud/faup.git ; \
+    sudo -H git clone https://github.com/MISP/mail_to_misp.git
+
+WORKDIR /tmp/faup
+RUN mkdir build ; \
+    cd build && cmake .. && make ; \
+    make install ; \
+    ldconfig
+
+WORKDIR /tmp/mail_to_misp
+RUN pip3 install -r requirements.txt ; \
+    mv -f mail_to_misp.py /usr/local/bin/mail_to_misp.py ; \
+    echo "misp_handler: \"|/usr/local/bin/mail_to_misp.py -\"" >> /etc/aliases ; \
+    /usr/bin/newaliases
+
+WORKDIR /tmp
+RUN rm -rf /tmp/faup ; \
+    rm -rf /tmp/mail_to_misp
 
 WORKDIR /usr/local/src/misp-modules
 RUN sudo pip3 install -I -r REQUIREMENTS ;  \
