@@ -30,6 +30,7 @@ RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.2/ap
     #echo "test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld" ; \
 RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng/syslog-ng.conf ; \
     postconf -e "relayhost = $POSTFIX_RELAY_HOST" ; \
+    sed -i "s/daemonize yes/daemonize no/" /etc/redis/redis.conf ; \
     test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld ; \
     a2dismod status ; \
     a2enmod ssl rewrite headers; \
