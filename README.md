@@ -45,7 +45,7 @@ git clone https://github.com/harvard-itsecurity/docker-misp.git
 cd docker-misp
 
 # modify build.sh, specifically for:
-# 1.) all passwords (MYSQL)
+# 1.) all passwords (MYSQL, GPG)
 # 2.) change at LEAST "MISP_FQDN" to your FQDN (domain)
 
 # Build the docker image - will take a bit, but it's a one time thing!
@@ -98,6 +98,7 @@ You can customize the ```build.sh``` script to pass custom:
 * POSTFIX_RELAY_HOST
 * MISP_FQDN
 * MISP_EMAIL
+* MISP_GPG_PASSWORD
 
 See build.sh for an example on how to customize and build your own image with custom defaults.
 
@@ -136,6 +137,8 @@ Conrad Crampton: @radder5 - RNG Tools and MISP Modules
 Jeremy Barlow: @jbarlow-mcafee - Cleanup, configs, conveniences, python 2 vs 3 compatibility
 
 Matt Saunders: @matt-saunders - Fixed all install warnings and errors
+
+Matija Čoklica: @XizzoR - Discovered problem where GPG key was empty
 
 # Help/Questions/Comments:
 For help or more info, feel free to contact Ventz Petkov: ventz_petkov@harvard.edu

@@ -6,6 +6,7 @@ ARG MYSQL_MISP_PASSWORD=ChangeThisDefaultPassworda9564ebc3289b7a14551baf8ad5ec60
 ARG POSTFIX_RELAY_HOST=localhost
 ARG MISP_FQDN=localhost
 ARG MISP_EMAIL=admin@localhost
+ARG MISP_GPG_PASSWORD=ChangeThisDefaultPasswordXuJBao5Q2bps89LWFqWkKgDZwAFpNHvc
 
 # Dir you need to override to keep data on reboot/new container:
 VOLUME /var/lib/mysql
@@ -181,11 +182,13 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     echo "Name-Real: MISP" >> /tmp/config_gpg ; \
     echo "Name-Email: $MISP_EMAIL" >> /tmp/config_gpg ; \
     echo "Expire-Date: 0" >> /tmp/config_gpg ; \
+    #echo "%no-protection" >> /tmp/config_gpg ; \
+    echo "Passphrase: $MISP_GPG_PASSWORD" >> /tmp/config_gpg ; \
     chmod 700 /tmp/config_gpg ; \
     sudo rm -f /dev/random ; \
     sudo mknod -m 0666 /dev/random c 1 9 ; \
-    sudo echo RNGDOPTIONS="--random-device /dev/urandom --rng-device /dev/urandom" | sudo tee /etc/default/rng-tools ; \
-    sudo echo HRNGDEVICE=/dev/urandom | sudo tee /etc/default/rng-tools ; \
+    #sudo echo RNGDOPTIONS="--random-device /dev/urandom --rng-device /dev/urandom" | sudo tee /etc/default/rng-tools ; \
+    sudo echo HRNGDEVICE=/dev/urandom | sudo tee -a /etc/default/rng-tools ; \
     sudo /etc/init.d/rng-tools restart ; \
     sudo rngd -f -r /dev/urandom ; \
     chown www-data /tmp/config_gpg ; \
