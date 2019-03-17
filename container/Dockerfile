@@ -73,7 +73,7 @@ RUN sudo pip3 install .
 
 WORKDIR /var/www/MISP/PyMISP
 RUN sudo pip3 install . ; \
-    sudo pip3 install https://github.com/kbandla/pydeep.git ; \
+    sudo pip3 install git+https://github.com/kbandla/pydeep.git ; \
     sudo pip3 install https://github.com/lief-project/packages/raw/lief-master-latest/pylief-0.9.0.dev.zip
 
 
