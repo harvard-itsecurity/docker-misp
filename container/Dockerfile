@@ -20,7 +20,7 @@ VOLUME /var/lib/mysql
 EXPOSE 80 443 3306 6379 50000
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-gnupg php-dev php-json php-mysql php-opcache php-readline php-redis php-xml php-mbstring rng-tools python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev python-setuptools libpq5 libjpeg-dev
+RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server sqlite3 apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-gnupg php-dev php-json php-mysql php-opcache php-readline php-redis php-xml php-mbstring rng-tools python3-dev python3-pip python3-yara python3-redis python3-zmq libxml2-dev libxslt1-dev zlib1g-dev python3-setuptools libpq5 libjpeg-dev libfuzzy-dev ruby asciidoctor tesseract-ocr imagemagick
 
 # Edit the php.ini file to adjust initial PHP settings to MISP recommended settings
 RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.2/apache2/php.ini ; \
@@ -39,6 +39,7 @@ RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng
     a2ensite default-ssl ; \
     mkdir -p /var/www/MISP /root/.config /root/.git
 
+
 WORKDIR /var/www/MISP
 RUN chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
     sudo -u www-data -H git clone https://github.com/MISP/MISP.git /var/www/MISP ; \
@@ -47,6 +48,8 @@ RUN chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
     sudo -u www-data -H git config core.filemode false ; \
     echo
 
+RUN sudo pip3 install --upgrade pip
+
 WORKDIR /var/www/MISP/app/files/scripts
 RUN sudo -u www-data -H git clone https://github.com/CybOXProject/python-cybox.git ; \
     sudo -u www-data -H git clone https://github.com/STIXProject/python-stix.git ; \
@@ -54,19 +57,25 @@ RUN sudo -u www-data -H git clone https://github.com/CybOXProject/python-cybox.g
     sudo -u www-data -H git clone https://github.com/CybOXProject/mixbox.git
 
 WORKDIR /var/www/MISP/app/files/scripts/mixbox
-RUN sudo python3 setup.py install
+RUN sudo pip3 install .
 
 WORKDIR /var/www/MISP/app/files/scripts/python-cybox
-RUN sudo python3 setup.py install
+RUN sudo pip3 install .
 
 WORKDIR /var/www/MISP/app/files/scripts/python-stix
-RUN sudo python3 setup.py install
+RUN sudo pip3 install .
 
 WORKDIR /var/www/MISP/app/files/scripts/python-maec
-RUN sudo python3 setup.py install
+RUN sudo pip3 install .
 
 WORKDIR /var/www/MISP/cti-python-stix2
-RUN sudo python3 setup.py install
+RUN sudo pip3 install .
+
+WORKDIR /var/www/MISP/PyMISP
+RUN sudo pip3 install . ; \
+    sudo pip3 install https://github.com/kbandla/pydeep.git ; \
+    sudo pip3 install https://github.com/lief-project/packages/raw/lief-master-latest/pylief-0.9.0.dev.zip
+
 
 WORKDIR /var/www/MISP
 RUN sudo -u www-data -H git submodule init ; \
@@ -74,13 +83,9 @@ RUN sudo -u www-data -H git submodule init ; \
 
 RUN sudo pip3 install jsonschema ; \
     sudo pip3 install reportlab ; \
-    sudo pip3 install pymisp
-
-WORKDIR /var/www/MISP/PyMISP
-RUN python3 setup.py install
-
-RUN sudo pip3 install --upgrade pip ; \
-    sudo pip3 install stix2
+    sudo pip3 install python-magic ; \
+    sudo pip3 install pyzmq ; \
+    sudo pip3 install redis
 
 WORKDIR /usr/local/src
 RUN sudo -H git clone https://github.com/MISP/misp-modules.git
@@ -89,7 +94,7 @@ WORKDIR /usr/local/src/misp-modules
 RUN sudo pip3 install -I -r REQUIREMENTS ;  \
     sudo pip3 install -I .
 
-RUN sudo pip3 uninstall -y cybox
+#RUN sudo pip uninstall -y cybox
 
 WORKDIR /var/www/MISP/app
 RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; \
@@ -144,9 +149,6 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sed -i -e "s/bind 127.0.0.1 ::1/bind 0.0.0.0/" /etc/redis/redis.conf ; \
     sudo chown -R www-data:www-data /var/www/MISP/app/Config ; \
     sudo chmod -R 750 /var/www/MISP/app/Config ; \
-    sudo pip3 install --upgrade pip ; \
-    sudo pip3 install pyzmq ; \
-    sudo pip3 install redis ; \
     sudo -u www-data -H wget http://downloads.sourceforge.net/project/ssdeep/ssdeep-2.13/ssdeep-2.13.tar.gz ; \
     tar zxvf ssdeep-2.13.tar.gz && cd ssdeep-2.13 && ./configure && make && sudo make install ; \
     sudo pecl install ssdeep ; \

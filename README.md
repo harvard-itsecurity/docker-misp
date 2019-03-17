@@ -1,6 +1,6 @@
 Docker MISP Container
 =====================
-### Latest Update: 3-16-2019
+### Latest Update: 3-17-2019
 
 Following the Official MISP Ubuntu 18.04 LTS build instructions.
 
@@ -138,7 +138,7 @@ Jeremy Barlow: @jbarlow-mcafee - Cleanup, configs, conveniences, python 2 vs 3 c
 
 Matt Saunders: @matt-saunders - Fixed all install warnings and errors
 
-Matija Čoklica: @XizzoR - Discovered problem where GPG key was empty
+Matija Čoklica: @XizzoR - Discovered problem where GPG key was empty, lots of python/misp modules debugging (thanks!)
 
 # Help/Questions/Comments:
 For help or more info, feel free to contact Ventz Petkov: ventz_petkov@harvard.edu
