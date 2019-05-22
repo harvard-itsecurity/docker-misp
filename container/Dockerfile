@@ -88,7 +88,7 @@ RUN sudo pip3 install jsonschema ; \
     sudo pip3 install redis
 
 WORKDIR /usr/local/src
-RUN sudo -H git clone https://github.com/MISP/misp-modules.git ; \
+RUN sudo -H git clone https://github.com/MISP/misp-modules.git
 
 WORKDIR /usr/local/src/misp-modules
 RUN sudo -H git checkout -b v2.4.104 ; \
