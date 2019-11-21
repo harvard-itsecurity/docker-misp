@@ -49,44 +49,25 @@ RUN chown -R www-data:www-data /var/www/MISP /root/.config /root/.git; \
     sudo -u www-data -H git config core.filemode false ; \
     echo
 
-RUN sudo pip3 install --upgrade pip
-
-WORKDIR /var/www/MISP/app/files/scripts
-RUN sudo -u www-data -H git clone https://github.com/CybOXProject/python-cybox.git ; \
-    sudo -u www-data -H git clone https://github.com/STIXProject/python-stix.git ; \
-    sudo -u www-data -H git clone https://github.com/MAECProject/python-maec.git ; \
-    sudo -u www-data -H git clone https://github.com/CybOXProject/mixbox.git
-
-WORKDIR /var/www/MISP/app/files/scripts/mixbox
-RUN sudo pip3 install .
-
-WORKDIR /var/www/MISP/app/files/scripts/python-cybox
-RUN sudo pip3 install .
-
-WORKDIR /var/www/MISP/app/files/scripts/python-stix
-RUN sudo pip3 install .
-
-WORKDIR /var/www/MISP/app/files/scripts/python-maec
-RUN sudo pip3 install .
-
-WORKDIR /var/www/MISP/cti-python-stix2
-RUN sudo pip3 install .
-
-WORKDIR /var/www/MISP/PyMISP
-RUN sudo pip3 install . ; \
+RUN sudo pip3 install --upgrade pip ; \
+    sudo pip3 install git+https://github.com/CybOXProject/mixbox.git ; \
+    sudo pip3 install git+https://github.com/CybOXProject/python-cybox.git ; \
+    sudo pip3 install git+https://github.com/STIXProject/python-stix.git ; \
+    sudo pip3 install git+https://github.com/MAECProject/python-maec.git ; \
+    sudo pip3 install /var/www/MISP/cti-python-stix2 ; \
+    sudo pip3 install /var/www/MISP/PyMISP ; \
     sudo pip3 install git+https://github.com/kbandla/pydeep.git ; \
-    sudo pip3 install https://github.com/lief-project/packages/raw/lief-master-latest/pylief-0.9.0.dev.zip
+    sudo pip3 install https://github.com/lief-project/packages/raw/lief-master-latest/pylief-0.9.0.dev.zip ; \
+    sudo pip3 install jsonschema ; \
+    sudo pip3 install reportlab ; \
+    sudo pip3 install python-magic ; \
+    sudo pip3 install pyzmq ; \
+    sudo pip3 install redis
 
 
 WORKDIR /var/www/MISP
 RUN sudo -u www-data -H git submodule init ; \
     sudo -u www-data -H git submodule update
-
-RUN sudo pip3 install jsonschema ; \
-    sudo pip3 install reportlab ; \
-    sudo pip3 install python-magic ; \
-    sudo pip3 install pyzmq ; \
-    sudo pip3 install redis
 
 WORKDIR /usr/local/src
 RUN sudo -H git clone https://github.com/MISP/misp-modules.git
