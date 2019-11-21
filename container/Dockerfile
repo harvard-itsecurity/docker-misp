@@ -20,11 +20,12 @@ VOLUME /var/lib/mysql
 EXPOSE 80 443 3306 6379 50000
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server sqlite3 apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-gnupg php-dev php-json php-mysql php-opcache php-readline php-redis php-xml php-mbstring rng-tools python3-dev python3-pip python3-yara python3-redis python3-zmq libxml2-dev libxslt1-dev zlib1g-dev python3-setuptools libpq5 libjpeg-dev libfuzzy-dev ruby asciidoctor tesseract-ocr imagemagick
+ENV DEBIAN_PRIORITY critical
+RUN apt-get update && apt-get install -y supervisor cron logrotate syslog-ng-core postfix curl gcc git gnupg-agent make python3 openssl redis-server sudo vim zip wget mariadb-client mariadb-server sqlite3 moreutils apache2 apache2-doc apache2-utils libapache2-mod-php php php-cli php-gnupg php-dev php-json php-mysql php7.2-opcache php-readline php-redis php-xml php-mbstring rng-tools python3-dev python3-pip python3-yara python3-redis python3-zmq libxml2-dev libxslt1-dev zlib1g-dev python3-setuptools libpq5 libjpeg-dev libfuzzy-dev ruby asciidoctor tesseract-ocr imagemagick libpoppler-cpp-dev
 
 # Edit the php.ini file to adjust initial PHP settings to MISP recommended settings
 RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.2/apache2/php.ini ; \
-    sed -i "s/memory_limit = 128M/memory_limit = 512M/" /etc/php/7.2/apache2/php.ini ; \
+    sed -i "s/memory_limit = 128M/memory_limit = 2048M/" /etc/php/7.2/apache2/php.ini ; \
     sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" /etc/php/7.2/apache2/php.ini ; \
     sed -i "s/post_max_size = 8M/post_max_size = 50M/" /etc/php/7.2/apache2/php.ini
 
