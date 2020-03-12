@@ -57,9 +57,9 @@ This will produce an image called: ```harvarditsecurity/docker-misp```
 
 # How to run it in 3 steps:
 
-About ```$docker-root``` - If you are running Docker on a Mac, there are some mount directory restrictions by default (see: https://docs.docker.com/docker-for-mac/osxfs/#namespaces). Your ```$docker-root``` needs to be either one of the supported defaults ("Users", "Volumes", "private", or "tmp"), otherwise, you must go to "Preferences" -> "File Sharing" and add your chosen $docker-root to the list.
+About ```$docker_root``` - If you are running Docker on a Mac, there are some mount directory restrictions by default (see: https://docs.docker.com/docker-for-mac/osxfs/#namespaces). Your ```$docker_root``` needs to be either one of the supported defaults ("Users", "Volumes", "private", or "tmp"), otherwise, you must go to "Preferences" -> "File Sharing" and add your chosen $docker_root to the list.
 
-We would suggest using ```/docker``` for your ```$docker-root```, and if using a Mac, adding that to the File Sharing list.
+We would suggest using ```/docker``` for your ```$docker_root```, and if using a Mac, adding that to the File Sharing list.
 
 Once you have your DB directory created (```mkdir -p /docker/misp-db```), follow the 3 steps:
 
@@ -67,7 +67,7 @@ Once you have your DB directory created (```mkdir -p /docker/misp-db```), follow
 
 ```
 docker run -it --rm \
-    -v $docker-root/misp-db:/var/lib/mysql \
+    -v $docker_root/misp-db:/var/lib/mysql \
     harvarditsecurity/misp /init-db
 ```
 
@@ -77,7 +77,7 @@ docker run -it -d \
     -p 443:443 \
     -p 80:80 \
     -p 3306:3306 \
-    -v $docker-root/misp-db:/var/lib/mysql \
+    -v $docker_root/misp-db:/var/lib/mysql \
     harvarditsecurity/misp
 ```
 
@@ -110,8 +110,8 @@ docker run -it -d \
     -p 443:443 \
     -p 80:80 \
     -p 3306:3306 \
-    -v $docker-root/certs:/etc/ssl/private \
-    -v $docker-root/misp-db:/var/lib/mysql \
+    -v $docker_root/certs:/etc/ssl/private \
+    -v $docker_root/misp-db:/var/lib/mysql \
     harvarditsecurity/misp
 ```
 
