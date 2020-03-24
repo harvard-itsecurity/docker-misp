@@ -133,7 +133,7 @@ RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sudo chown -R www-data:www-data /var/www/MISP/app/Config ; \
     sudo chmod -R 750 /var/www/MISP/app/Config ; \
     sudo -u www-data -H wget https://github.com/ssdeep-project/ssdeep/releases/download/release-2.14.1/ssdeep-2.14.1.tar.gz ; \
-    tar zxvf ssdeep-2.14.1.tar.gz && cd ssdeep-2.14.1.tar.gz && ./configure && make && sudo make install ; \
+    tar zxvf ssdeep-2.14.1.tar.gz && cd ssdeep-2.14.1 && ./configure && make && sudo make install ; \
     sudo pecl install ssdeep ; \
     sudo echo "extension=ssdeep.so" > /etc/php/7.2/mods-available/ssdeep.ini ; \
     sudo phpenmod ssdeep ; \
