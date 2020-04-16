@@ -1,6 +1,6 @@
 Docker MISP Container
 =====================
-### Latest Update: 11-20-2019
+### Latest Update: 4-14-2020
 
 Following the Official MISP Ubuntu 18.04 LTS build instructions.
 
@@ -77,6 +77,7 @@ docker run -it -d \
     -p 443:443 \
     -p 80:80 \
     -p 3306:3306 \
+    -p 6666:6666 \
     -v $docker-root/misp-db:/var/lib/mysql \
     harvarditsecurity/misp
 ```
@@ -130,6 +131,35 @@ concern for a production environment, you can either 1.) take out the
 2.) replace the keys with your own! For most users, this should not
 ever be an issue. The "rng-tools" is removed as part of the build
 process after it has been used.
+
+# Using a reverse proxy/SSL offloading (Traefik, Caddy, HAProxy, Nginx, etc)
+
+You will need to removing the SSL block (see: `/etc/apache2/sites-available/default-ssl.conf`)
+
+And replace the HTTP block (see: `/etc/apache2/sites-available/000-default.conf` with:
+
+```
+<VirtualHost *:80>
+ServerAdmin admin@localhost
+ServerName localhost
+DocumentRoot /var/www/MISP/app/webroot
+<Directory /var/www/MISP/app/webroot>
+Options -Indexes
+AllowOverride all
+</Directory>
+LogLevel warn
+ErrorLog /var/log/apache2/misp_error.log
+CustomLog /var/log/apache2/misp_access.log combined
+ServerSignature Off
+</VirtualHost>
+```
+
+If you don't want to build a new image with this, you can simply add to your run-time:
+(note again: $docker-root is the place holder for your docker container and configs path)
+```
+-v $docker-root/apache.conf:/etc/apache2/sites-available/000-default.conf
+```
+
 
 # Contributions:
 Conrad Crampton: @radder5 - RNG Tools and MISP Modules
