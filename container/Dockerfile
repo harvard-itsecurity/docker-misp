@@ -1,12 +1,15 @@
+# User supplied inputs - (see bellow within Dockerfile for real ARGS that you can replace)
+# // DO NOT TOUCH HERE - THIS SECTION IS NOT USED - SIMPLY USED AS README //
+##################################################################
+# ARG MYSQL_MISP_PASSWORD=ChangeThisDefaultPassworda9564ebc3289b7a14551baf8ad5ec60a	
+# ARG POSTFIX_RELAY_HOST=localhost	
+# ARG MISP_FQDN=localhost	
+# ARG MISP_EMAIL=admin@localhost	
+# ARG MISP_GPG_PASSWORD=ChangeThisDefaultPasswordXuJBao5Q2bps89LWFqWkKgDZwAFpNHvc
+##################################################################
+# ^^^ DO NOT TOUCH HERE - THIS SECTION IS NOT USED - SIMPLY USED AS README ^^^
 FROM ubuntu:18.04
 MAINTAINER Ventz Petkov <ventz_petkov@harvard.edu>
-
-# User supplied inputs
-ARG MYSQL_MISP_PASSWORD=ChangeThisDefaultPassworda9564ebc3289b7a14551baf8ad5ec60a
-ARG POSTFIX_RELAY_HOST=localhost
-ARG MISP_FQDN=localhost
-ARG MISP_EMAIL=admin@localhost
-ARG MISP_GPG_PASSWORD=ChangeThisDefaultPasswordXuJBao5Q2bps89LWFqWkKgDZwAFpNHvc
 
 # Dir you need to override to keep data on reboot/new container:
 VOLUME /var/lib/mysql
@@ -28,6 +31,8 @@ RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.2/ap
     sed -i "s/memory_limit = 128M/memory_limit = 2048M/" /etc/php/7.2/apache2/php.ini ; \
     sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" /etc/php/7.2/apache2/php.ini ; \
     sed -i "s/post_max_size = 8M/post_max_size = 50M/" /etc/php/7.2/apache2/php.ini
+
+ARG POSTFIX_RELAY_HOST=localhost
 
     #echo "test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld" ; \
 RUN sed -i -E 's/^(\s*)system\(\);/\1unix-stream("\/dev\/log");/' /etc/syslog-ng/syslog-ng.conf ; \
@@ -78,6 +83,8 @@ RUN sudo -H git checkout ; \
     sudo pip3 install -I .
 
 #RUN sudo pip uninstall -y cybox
+ARG MISP_FQDN=localhost
+ARG MISP_EMAIL=admin@localhost
 
 WORKDIR /var/www/MISP/app
 RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; \
@@ -123,6 +130,9 @@ RUN mkdir /var/www/.composer && chown -R www-data:www-data /var/www/.composer ; 
     sudo -u www-data cp -a /var/www/MISP/app/Config/database.default.php /var/www/MISP/app/Config/database.php ; \
     sudo -u www-data cp -a /var/www/MISP/app/Config/core.default.php /var/www/MISP/app/Config/core.php ; \
     sudo -u www-data cp -a /var/www/MISP/app/Config/config.default.php /var/www/MISP/app/Config/config.php
+
+ARG MYSQL_MISP_PASSWORD=ChangeThisDefaultPassworda9564ebc3289b7a14551baf8ad5ec60a
+ARG MISP_GPG_PASSWORD=ChangeThisDefaultPasswordXuJBao5Q2bps89LWFqWkKgDZwAFpNHvc
 
 RUN sed -i -e 's/db login/misp/g' /var/www/MISP/app/Config/database.php ; \
     sed -i -e "s/db password/${MYSQL_MISP_PASSWORD}/g" /var/www/MISP/app/Config/database.php ; \
