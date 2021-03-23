@@ -62,7 +62,7 @@ RUN sudo pip3 install --upgrade pip ; \
     sudo pip3 install /var/www/MISP/cti-python-stix2 ; \
     sudo pip3 install /var/www/MISP/PyMISP ; \
     sudo pip3 install git+https://github.com/kbandla/pydeep.git ; \
-    sudo pip3 install https://github.com/lief-project/packages/raw/lief-master-latest/pylief-0.9.0.dev.zip ; \
+    sudo pip3 install lief ; \
     sudo pip3 install jsonschema ; \
     sudo pip3 install reportlab ; \
     sudo pip3 install python-magic ; \
